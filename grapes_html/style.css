@@ -1,0 +1,430 @@
+.right{
+    padding: 0%;
+}
+
+.left{
+    padding: 0%;
+}
+
+.row{
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+
+.left .top {
+    background-color: rgb(211, 12, 92);
+    height: 6%;
+    padding: 0%;
+    text-align: center;
+}
+
+.left .middle {
+    background-color: rgb(230, 233, 236);
+    height: 88%;
+}
+
+.left .bottom {
+    background-color: rgb(73, 81, 87);
+    height: 6%;
+    padding: 0;
+}
+
+.right .top {
+    background-color: rgb(255, 255, 255);
+    height: 15%;
+    border-bottom: rgb(232, 232, 232) solid 1px;
+}
+
+.body {
+    background-color: rgb(249, 249, 249);
+    height: 85%;
+}
+
+.item{
+    background-color: rgb(249, 250, 251);
+    height: 30px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.item-1{
+    padding-top: 10px;
+    background-color: rgb(230, 233, 236);
+    height: 40px;
+}
+
+
+.sep{
+    background-color: rgb(225, 228, 231);
+    height: 5px;
+    width: 95%;
+    margin: 0 auto;
+    border-radius: 25px;
+}
+
+.text-form{
+    padding: 10px;
+    width: 90%;
+    margin: 10px auto 0 auto;
+}
+
+
+.center-icon h5{ 
+    color: rgb(255, 255, 255);
+  }
+
+  .center-icon .fab{ 
+    color: rgb(66, 61, 61)
+  }
+
+
+  .text{
+    padding: 5px 3px;
+    color: rgb(109, 120, 130);
+  }
+
+  p{
+      margin: 0;
+      font-size: 12px;
+  }
+
+  .form-control{
+      background-color: rgb(248, 248, 249);
+  }
+
+    input:focus, input.form-control:focus {
+
+        outline:none !important;
+        outline-width: 0 !important;
+        box-shadow: none;
+        -moz-box-shadow: none;
+        -webkit-box-shadow: none;
+    }
+
+    .off-p{
+        padding: 0;
+    }
+
+    .btn{
+        height: 25px;
+        width: 80%;
+    }
+
+    .center-icon{
+        padding: 6px 0;
+        text-align: center;
+    }
+
+.box{
+    text-align: center;
+}    
+
+.b-item-top{
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    width: 90%;
+    height: 40px;
+    background-color: rgb(255, 255, 255);
+    margin: 0 auto;
+}
+
+.b-item-middle{
+    width: 90%;
+    height: 40px;
+    background-color: rgb(255, 255, 255);
+    margin: 1px auto;
+}
+
+.b-item-bottom{
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    width: 90%;
+    height: 40px;
+    background-color: rgb(255, 255, 255);
+    margin: 0 auto;
+}
+
+.text-options{
+    text-align: left;
+    padding: 8px 0;
+    color: rgb(109, 120, 130);
+    font-weight: 500;
+}
+
+.item-settings{
+    background-color: rgb(255, 255, 255);
+    height: 60px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.div-settings{
+
+    background-color: white;
+    height: 35px;
+    margin-bottom: 1px;
+    
+}
+
+.div-settings .text{
+    color: rgb(109, 120, 130);
+    font-weight: bold;
+}
+
+.div-settings .row .col-1, .div-settings .row .col-10{
+    padding: 0;
+}
+
+.settings-div-left{
+    width: 40px;
+    height: 35px;
+    background-color: rgb(255, 255, 255);
+    z-index: 1;
+}
+
+.settings-div-right{
+    width: 100%;
+    height: 35px;
+    background-color: rgb(255, 255, 255);
+    position: absolute;
+    z-index: 0;
+}
+
+.settings-div-right .center .text{
+
+    padding: 7px 0 0 45px;
+}
+.settings-div-left .center .text{
+    padding: 7px 15px;
+}
+
+.setting-box-a{
+    background-color: white;
+    height: 280px;
+    width: 100%;
+}
+
+.setting-box-b{
+    background-color: white;
+    height: 200px;
+    width: 100%;
+    padding-top: 15px;
+}
+
+.settings-div{
+    height: 35px;
+    width: 100%;
+    background-color: rgb(255, 255, 255);
+    padding: 0 20px;
+    margin-bottom: 2px;
+}
+
+.settings-div .row .col-6{
+    padding: 0;
+}
+
+.settings-div .row .custom-switch{
+    text-align: right;
+}
+
+.item-settings .row .col-4 .center .center-icon{
+    padding: 10px 0 0 0;
+    
+} 
+
+.item-settings .row .col-4 {
+    padding: 0;
+    height: 60px;
+    
+} 
+
+.left-item{
+    background-color: rgb(247, 248, 249);
+    height: 60px;
+}
+
+.right-item{
+    background-color: rgb(255, 255, 255);
+    height: 60px;
+}
+
+.middle-item{
+    background-color: rgb(255, 255, 255);
+    height: 60px;
+}
+
+.padding-left{
+    background-color: rgb(255, 255, 255);
+    height: 30px;
+    width: 20%;
+    border: 0.5px solid rgb(164, 175, 183);;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    text-align: center;
+}
+
+.padding-right{
+    background-color: rgb(164, 175, 183);
+    height: 30px;
+    width: 20%;
+    border: 0.5px solid rgb(164, 175, 183);;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    text-align: center;
+}
+
+.padding-middle{
+    background-color: rgb(255, 255, 255);
+    height: 30px;
+    width: 20%;
+    border: 0.5px solid rgb(164, 175, 183);
+    text-align: center;
+}
+
+.settings-div .row .padding-text p {
+    text-align: center;
+    color: rgb(216, 229, 244);
+    font-size: 10px;
+}
+
+.padding-text{
+    background-color: rgb(255, 255, 255);
+    height: 30px;
+    width: 20%;
+}
+
+.items-box {
+    text-align: right;
+}
+
+.btn-left{
+    background-color: rgb(255, 255, 255);
+    height: 30px;
+    width: 30px;
+    border: 0.5px solid rgb(164, 175, 183);;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    position: absolute;
+    right: 0;
+    margin: 0 30px 0 0;
+
+}
+
+.btn-right{
+    background-color: rgb(255, 255, 255);
+    height: 30px;
+    width: 30px;
+    border: 0.5px solid rgb(164, 175, 183);;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    position: absolute;
+    right: 0;
+    
+}
+
+.btn-icon{
+    position: absolute;
+    left: 0;
+    margin-left: 7px;
+}
+
+.btn-text-1{
+    background-color: rgb(255, 255, 255);
+    height: 30px;
+    width: 30px;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    position: absolute;
+    right: 0;
+    margin: 0 0 0 0;
+
+}
+
+.btn-text-2{
+    background-color: rgb(255, 255, 255);
+    height: 30px;
+    width: 30px;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    position: absolute;
+    right: 0;
+    margin: 0 30px 0 0;
+
+}
+
+.btn-text-3{
+    background-color: rgb(255, 255, 255);
+    height: 30px;
+    width: 30px;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    position: absolute;
+    right: 0;
+    margin: 0 60px 0 0;
+
+}
+
+.btn-a{
+    background-color: rgb(255, 255, 255);
+    height: 30px;
+    width: 30px;
+    border: 0.5px solid rgb(164, 175, 183);;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    position: absolute;
+    right: 0;
+    margin: 0 90px 0 0;
+}
+
+.btn-b{
+    background-color: rgb(255, 255, 255);
+    height: 30px;
+    width: 30px;
+    border: 0.5px solid rgb(164, 175, 183);;
+    position: absolute;
+    right: 0;
+    margin: 0 60px 0 0;
+}
+
+
+.btn-c{
+    background-color: rgb(255, 255, 255);
+    height: 30px;
+    width: 30px;
+    border: 0.5px solid rgb(164, 175, 183);;
+    position: absolute;
+    right: 0;
+    margin: 0 30px 0 0;
+}
+
+.btn-d{
+    background-color: rgb(255, 255, 255);
+    height: 30px;
+    width: 30px;
+    border: 0.5px solid rgb(164, 175, 183);;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    position: absolute;
+    right: 0;
+    margin: 0 0px 0 0;
+    
+}
+
+.setting-box-c{
+    background-color: white;
+    height: 120px;
+    width: 100%;
+    margin-bottom: 1px;
+}
+
+.btn-solo{
+    background-color: rgb(255, 255, 255);
+    height: 30px;
+    width: 30px;
+    border: 0.5px solid rgb(164, 175, 183);
+    border-radius: 4px;
+    position: absolute;
+    right: 0;
+}

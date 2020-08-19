@@ -447,7 +447,7 @@ function _unsupportedIterableToArray(o, minLen) {
   if (typeof o === "string") return arrayLikeToArray(o, minLen);
   var n = Object.prototype.toString.call(o).slice(8, -1);
   if (n === "Object" && o.constructor) n = o.constructor.name;
-  if (n === "Map" || n === "Set") return Array.from(n);
+  if (n === "Map" || n === "Set") return Array.from(o);
   if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return arrayLikeToArray(o, minLen);
 }
 
@@ -4994,7 +4994,7 @@ fn.siblings = function () {
   }
 
   // Number of pixels added to scroller and sizer to hide scrollbar
-  var scrollerGap = 30;
+  var scrollerGap = 50;
 
   // Returned or thrown by various protocols to signal 'I'm not
   // handling this'.
@@ -5991,7 +5991,7 @@ fn.siblings = function () {
       var prop = lineClass[1] ? "bgClass" : "textClass";
       if (output[prop] == null)
         { output[prop] = lineClass[2]; }
-      else if (!(new RegExp("(?:^|\s)" + lineClass[2] + "(?:$|\s)")).test(output[prop]))
+      else if (!(new RegExp("(?:^|\\s)" + lineClass[2] + "(?:$|\\s)")).test(output[prop]))
         { output[prop] += " " + lineClass[2]; }
     } }
     return type
@@ -7750,7 +7750,7 @@ fn.siblings = function () {
     var x, y, space = display.lineSpace.getBoundingClientRect();
     // Fails unpredictably on IE[67] when mouse is dragged around quickly.
     try { x = e.clientX - space.left; y = e.clientY - space.top; }
-    catch (e) { return null }
+    catch (e$1) { return null }
     var coords = coordsChar(cm, x, y), line;
     if (forRect && coords.xRel > 0 && (line = getLine(cm.doc, coords.line).text).length == coords.ch) {
       var colDiff = countColumn(line, line.length, cm.options.tabSize) - line.length;
@@ -8840,7 +8840,8 @@ fn.siblings = function () {
   function restoreSelection(snapshot) {
     if (!snapshot || !snapshot.activeElt || snapshot.activeElt == activeElt()) { return }
     snapshot.activeElt.focus();
-    if (snapshot.anchorNode && contains(document.body, snapshot.anchorNode) && contains(document.body, snapshot.focusNode)) {
+    if (!/^(INPUT|TEXTAREA)$/.test(snapshot.activeElt.nodeName) &&
+        snapshot.anchorNode && contains(document.body, snapshot.anchorNode) && contains(document.body, snapshot.focusNode)) {
       var sel = window.getSelection(), range = document.createRange();
       range.setEnd(snapshot.anchorNode, snapshot.anchorOffset);
       range.collapse(false);
@@ -11334,7 +11335,7 @@ fn.siblings = function () {
           cm.display.input.focus();
         }
       }
-      catch(e){}
+      catch(e$1){}
     }
   }
 
@@ -11980,6 +11981,7 @@ fn.siblings = function () {
   var lastStoppedKey = null;
   function onKeyDown(e) {
     var cm = this;
+    if (e.target && e.target != cm.display.input.getField()) { return }
     cm.curOp.focus = activeElt();
     if (signalDOMEvent(cm, e)) { return }
     // IE does strange things with escape.
@@ -12023,6 +12025,7 @@ fn.siblings = function () {
 
   function onKeyPress(e) {
     var cm = this;
+    if (e.target && e.target != cm.display.input.getField()) { return }
     if (eventInWidget(cm.display, e) || signalDOMEvent(cm, e) || e.ctrlKey && !e.altKey || mac && e.metaKey) { return }
     var keyCode = e.keyCode, charCode = e.charCode;
     if (presto && keyCode == lastStoppedKey) {lastStoppedKey = null; e_preventDefault(e); return}
@@ -12171,8 +12174,8 @@ fn.siblings = function () {
         if (!behavior.addNew)
           { extendSelection(cm.doc, pos, null, null, behavior.extend); }
         // Work around unexplainable focus problem in IE9 (#2127) and Chrome (#3081)
-        if (webkit || ie && ie_version == 9)
-          { setTimeout(function () {display.wrapper.ownerDocument.body.focus(); display.input.focus();}, 20); }
+        if ((webkit && !safari) || ie && ie_version == 9)
+          { setTimeout(function () {display.wrapper.ownerDocument.body.focus({preventScroll: true}); display.input.focus();}, 20); }
         else
           { display.input.focus(); }
       }
@@ -12384,7 +12387,7 @@ fn.siblings = function () {
       mY = e.touches[0].clientY;
     } else {
       try { mX = e.clientX; mY = e.clientY; }
-      catch(e) { return false }
+      catch(e$1) { return false }
     }
     if (mX >= Math.floor(cm.display.gutters.getBoundingClientRect().right)) { return false }
     if (prevent) { e_preventDefault(e); }
@@ -12484,7 +12487,7 @@ fn.siblings = function () {
       for (var i = newBreaks.length - 1; i >= 0; i--)
         { replaceRange(cm.doc, val, newBreaks[i], Pos(newBreaks[i].line, newBreaks[i].ch + val.length)); }
     });
-    option("specialChars", /[\u0000-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g, function (cm, val, old) {
+    option("specialChars", /[\u0000-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200c\u200e\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g, function (cm, val, old) {
       cm.state.specialChars = new RegExp(val.source + (val.test("\t") ? "" : "|\t"), "g");
       if (old != Init) { cm.refresh(); }
     });
@@ -12904,7 +12907,7 @@ fn.siblings = function () {
           { from = Pos(from.line, from.ch - deleted); }
         else if (cm.state.overwrite && !paste) // Handle overwrite
           { to = Pos(to.line, Math.min(getLine(doc, to.line).text.length, to.ch + lst(textLines).length)); }
-        else if (paste && lastCopied && lastCopied.lineWise && lastCopied.text.join("\n") == inserted)
+        else if (paste && lastCopied && lastCopied.lineWise && lastCopied.text.join("\n") == textLines.join("\n"))
           { from = to = Pos(from.line, 0); }
       }
       var changeEvent = {from: from, to: to, text: multiPaste ? multiPaste[i$1 % multiPaste.length] : textLines,
@@ -13534,8 +13537,16 @@ fn.siblings = function () {
     var div = input.div = display.lineDiv;
     disableBrowserMagic(div, cm.options.spellcheck, cm.options.autocorrect, cm.options.autocapitalize);
 
+    function belongsToInput(e) {
+      for (var t = e.target; t; t = t.parentNode) {
+        if (t == div) { return true }
+        if (/\bCodeMirror-(?:line)?widget\b/.test(t.className)) { break }
+      }
+      return false
+    }
+
     on(div, "paste", function (e) {
-      if (signalDOMEvent(cm, e) || handlePaste(e, cm)) { return }
+      if (!belongsToInput(e) || signalDOMEvent(cm, e) || handlePaste(e, cm)) { return }
       // IE doesn't fire input events, so we schedule a read for the pasted content in this way
       if (ie_version <= 11) { setTimeout(operation(cm, function () { return this$1.updateFromDOM(); }), 20); }
     });
@@ -13560,7 +13571,7 @@ fn.siblings = function () {
     });
 
     function onCopyCut(e) {
-      if (signalDOMEvent(cm, e)) { return }
+      if (!belongsToInput(e) || signalDOMEvent(cm, e)) { return }
       if (cm.somethingSelected()) {
         setLastCopied({lineWise: false, text: cm.getSelections()});
         if (e.type == "cut") { cm.replaceSelection("", null, "cut"); }
@@ -14550,7 +14561,7 @@ fn.siblings = function () {
 
   addLegacyProps(CodeMirror);
 
-  CodeMirror.version = "5.53.2";
+  CodeMirror.version = "5.56.0";
 
   return CodeMirror;
 
@@ -15691,10 +15702,13 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     } else if (ch == "`") {
       state.tokenize = tokenQuasi;
       return tokenQuasi(stream, state);
-    } else if (ch == "#") {
+    } else if (ch == "#" && stream.peek() == "!") {
       stream.skipToEnd();
-      return ret("error", "error");
-    } else if (ch == "<" && stream.match("!--") || ch == "-" && stream.match("->")) {
+      return ret("meta", "meta");
+    } else if (ch == "#" && stream.eatWhile(wordRE)) {
+      return ret("variable", "property")
+    } else if (ch == "<" && stream.match("!--") ||
+               (ch == "-" && stream.match("->") && !/\S/.test(stream.string.slice(0, stream.start)))) {
       stream.skipToEnd()
       return ret("comment", "comment")
     } else if (isOperatorChar.test(ch)) {
@@ -15706,6 +15720,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
           if (ch == ">") stream.eat(ch)
         }
       }
+      if (ch == "?" && stream.eat(".")) return ret(".")
       return ret("operator", "operator", stream.current());
     } else if (wordRE.test(ch)) {
       stream.eatWhile(wordRE);
@@ -16048,7 +16063,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "=>") return cont(pushcontext, noComma ? arrowBodyNoComma : arrowBody, popcontext);
     if (type == "operator") {
       if (/\+\+|--/.test(value) || isTS && value == "!") return cont(me);
-      if (isTS && value == "<" && cx.stream.match(/^([^>]|<.*?>)*>\s*\(/, false))
+      if (isTS && value == "<" && cx.stream.match(/^([^<>]|<[^<>]*>)*>\s*\(/, false))
         return cont(pushlex(">"), commasep(typeexpr, ">"), poplex, me);
       if (value == "?") return cont(expression, expect(":"), expr);
       return cont(expr);
@@ -16350,11 +16365,11 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
     if (type == "variable" || cx.style == "keyword") {
       cx.marked = "property";
-      return cont(isTS ? classfield : functiondef, classBody);
+      return cont(classfield, classBody);
     }
-    if (type == "number" || type == "string") return cont(isTS ? classfield : functiondef, classBody);
+    if (type == "number" || type == "string") return cont(classfield, classBody);
     if (type == "[")
-      return cont(expression, maybetype, expect("]"), isTS ? classfield : functiondef, classBody)
+      return cont(expression, maybetype, expect("]"), classfield, classBody)
     if (value == "*") {
       cx.marked = "keyword";
       return cont(classBody);
@@ -20730,7 +20745,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_Asset__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _Asset__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _Asset__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     type: 'image',
     unitDim: 'px',
     height: 0,
@@ -21139,9 +21154,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var backbone__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! backbone */ "./node_modules/backbone/backbone.js");
 /* harmony import */ var backbone__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(backbone__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var utils_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! utils/fetch */ "./src/utils/fetch.js");
-function _createForOfIteratorHelper(o) { if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (o = _unsupportedIterableToArray(o))) { var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var it, normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
 
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(n); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
@@ -21811,7 +21826,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
         return new _view_BlocksView__WEBPACK_IMPORTED_MODULE_5__["default"]({
           collection: collection,
           categories: categories
-        }, _objectSpread({}, c, {}, opts)).render().el;
+        }, _objectSpread(_objectSpread({}, c), opts)).render().el;
       }
 
       if (blocksView) {
@@ -22178,7 +22193,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
   },
   updateConfig: function updateConfig() {
     var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-    this.config = _objectSpread({}, this.config, {}, opts);
+    this.config = _objectSpread(_objectSpread({}, this.config), opts);
   },
 
   /**
@@ -22573,7 +22588,7 @@ var _window = window,
      */
     init: function init() {
       var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      c = _objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_5__["default"], {}, config, {
+      c = _objectSpread(_objectSpread(_objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_5__["default"]), config), {}, {
         module: this
       });
       this.em = c.em;
@@ -22842,7 +22857,7 @@ var _window = window,
           top = _CanvasView$getPositi.top,
           left = _CanvasView$getPositi.left;
 
-      return _objectSpread({}, CanvasView.getCanvasOffset(), {
+      return _objectSpread(_objectSpread({}, CanvasView.getCanvasOffset()), {}, {
         topScroll: top,
         leftScroll: left
       });
@@ -23175,7 +23190,7 @@ var _window = window,
     addFrame: function addFrame() {
       var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      return canvas.get('frames').add(_objectSpread({}, props), _objectSpread({}, opts, {
+      return canvas.get('frames').add(_objectSpread({}, props), _objectSpread(_objectSpread({}, opts), {}, {
         em: this.em
       }));
     }
@@ -23481,7 +23496,7 @@ var timerZoom;
         config = this.config;
     this.frames = new _FramesView__WEBPACK_IMPORTED_MODULE_4__["default"]({
       collection: frames,
-      config: _objectSpread({}, config, {
+      config: _objectSpread(_objectSpread({}, config), {}, {
         canvasView: this,
         renderContent: 1
       })
@@ -23829,7 +23844,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
     Object(underscore__WEBPACK_IMPORTED_MODULE_3__["bindAll"])(this, 'updateClientY', 'stopAutoscroll', 'autoscroll', '_emitUpdate');
     var model = this.model,
         el = this.el;
-    this.config = _objectSpread({}, o.config || {}, {
+    this.config = _objectSpread(_objectSpread({}, o.config || {}), {}, {
       frameView: this
     });
     this.ppfx = this.config.pStylePrefix || '';
@@ -24086,14 +24101,14 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
     Object(utils_dom__WEBPACK_IMPORTED_MODULE_6__["append"])(body, "<style>\n      ".concat(conf.baseCss || '', "\n\n      .").concat(ppfx, "dashed *[data-highlightable] {\n        outline: 1px dashed rgba(170,170,170,0.7);\n        outline-offset: -2px;\n      }\n\n      .").concat(ppfx, "selected {\n        outline: 3px solid #3b97e3 !important;\n        outline-offset: -3px;\n      }\n\n      .").concat(ppfx, "selected-parent {\n        outline: 2px solid ").concat(colorWarn, " !important\n      }\n\n      .").concat(ppfx, "no-select {\n        user-select: none;\n        -webkit-user-select:none;\n        -moz-user-select: none;\n      }\n\n      .").concat(ppfx, "freezed {\n        opacity: 0.5;\n        pointer-events: none;\n      }\n\n      .").concat(ppfx, "no-pointer {\n        pointer-events: none;\n      }\n\n      .").concat(ppfx, "plh-image {\n        background: #f5f5f5;\n        border: none;\n        height: 100px;\n        width: 100px;\n        display: block;\n        outline: 3px solid #ffca6f;\n        cursor: pointer;\n        outline-offset: -2px\n      }\n\n      .").concat(ppfx, "grabbing {\n        cursor: grabbing;\n        cursor: -webkit-grabbing;\n      }\n\n      .").concat(ppfx, "is__grabbing {\n        overflow-x: hidden;\n      }\n\n      .").concat(ppfx, "is__grabbing,\n      .").concat(ppfx, "is__grabbing * {\n        cursor: grabbing !important;\n      }\n\n      ").concat(conf.canvasCss || '', "\n      ").concat(conf.protectedCss || '', "\n    </style>"));
     this.root = new dom_components_view_ComponentView__WEBPACK_IMPORTED_MODULE_5__["default"]({
       model: root,
-      config: _objectSpread({}, root.config, {
+      config: _objectSpread(_objectSpread({}, root.config), {}, {
         frameView: this
       })
     }).render();
     Object(utils_dom__WEBPACK_IMPORTED_MODULE_6__["append"])(body, this.root.el);
     Object(utils_dom__WEBPACK_IMPORTED_MODULE_6__["append"])(body, new css_composer_view_CssRulesView__WEBPACK_IMPORTED_MODULE_4__["default"]({
       collection: styles,
-      config: _objectSpread({}, em.get('CssComposer').getConfig(), {
+      config: _objectSpread(_objectSpread({}, em.get('CssComposer').getConfig()), {}, {
         frameView: this
       })
     }).render().el);
@@ -24181,7 +24196,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
     Object(underscore__WEBPACK_IMPORTED_MODULE_3__["bindAll"])(this, 'onScroll', 'frameLoaded', 'updateOffset', 'remove', 'startDrag');
     var model = this.model;
 
-    var config = _objectSpread({}, opts.config || conf, {
+    var config = _objectSpread(_objectSpread({}, opts.config || conf), {}, {
       frameWrapView: this
     });
 
@@ -24296,9 +24311,9 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
     style.height = Object(underscore__WEBPACK_IMPORTED_MODULE_3__["isNumber"])(newH) ? "".concat(newH).concat(un) : newH; // Set width and height from DOM (should be done only once)
 
     if (Object(underscore__WEBPACK_IMPORTED_MODULE_3__["isNull"])(width) || Object(underscore__WEBPACK_IMPORTED_MODULE_3__["isNull"])(height)) {
-      var newDims = _objectSpread({}, !width ? {
+      var newDims = _objectSpread(_objectSpread({}, !width ? {
         width: el.offsetWidth
-      } : {}, {}, !height ? {
+      } : {}), !height ? {
         height: el.offsetHeight
       } : {});
 
@@ -25280,7 +25295,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
      */
     init: function init() {
       var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      c = _objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_4__["default"], {}, config);
+      c = _objectSpread(_objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_4__["default"]), config);
       em = c.em;
       var ppfx = c.pStylePrefix;
       if (ppfx) c.stylePrefix = ppfx + c.stylePrefix; // Load commands passed via configuration
@@ -25477,7 +25492,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
       var command = this.get(id);
 
       if (command) {
-        var cmdObj = _objectSpread({}, command.constructor.prototype, {}, cmd);
+        var cmdObj = _objectSpread(_objectSpread({}, command.constructor.prototype), cmd);
 
         this.add(id, cmdObj); // Extend also old name commands if exist
 
@@ -26311,7 +26326,7 @@ var evName = 'dmode';
       y: top + height / 2
     } // Mid y
     ].map(function (item) {
-      return _objectSpread({}, item, {
+      return _objectSpread(_objectSpread({}, item), {}, {
         origin: el,
         originRect: originRect,
         guide: opts.debug && _this5.renderGuide(item)
@@ -26481,9 +26496,9 @@ var evName = 'dmode';
         opts = this.opts,
         id = this.id;
     var onEnd = opts.onEnd;
-    onEnd && onEnd(ev, opt, _objectSpread({
+    onEnd && onEnd(ev, opt, _objectSpread(_objectSpread({
       event: ev
-    }, opt, {}, this._getDragData()));
+    }, opt), this._getDragData()));
     editor.stopCommand(id);
     this.hideGuidesInfo();
     this.em.trigger("".concat(evName, ":end"), this.getEventOpts());
@@ -26571,7 +26586,7 @@ var evName = 'dmode';
         guideInfoStyle[isY ? 'width' : 'height'] = "".concat(size, "px");
         elGuideInfoCnt.innerHTML = "".concat(Math.round(sizeRaw), "px");
 
-        _this8.em.trigger("".concat(evName, ":active"), _objectSpread({}, _this8.getEventOpts(), {
+        _this8.em.trigger("".concat(evName, ":active"), _objectSpread(_objectSpread({}, _this8.getEventOpts()), {}, {
           guide: item,
           guidesStatic: guidesStatic,
           matched: res,
@@ -27566,12 +27581,19 @@ var cmdVis = 'sw-visibility';
 
     return this.panels;
   },
+  preventDrag: function preventDrag(opts) {
+    opts.abort = 1;
+  },
   tglPointers: function tglPointers(editor, val) {
     var body = editor.Canvas.getBody();
     var elP = body.querySelectorAll(".".concat(this.ppfx, "no-pointer"));
     Object(underscore__WEBPACK_IMPORTED_MODULE_0__["each"])(elP, function (item) {
       return item.style.pointerEvents = val ? '' : 'all';
     });
+  },
+  tglEffects: function tglEffects(on) {
+    var mthEv = on ? 'on' : 'off';
+    this.em[mthEv]('run:tlb-move:before', this.preventDrag);
   },
   run: function run(editor, sender) {
     var _this = this;
@@ -27614,6 +27636,7 @@ var cmdVis = 'sw-visibility';
     canvasS.padding = '0';
     canvasS.margin = '0';
     editor.refresh();
+    this.tglEffects(1);
   },
   stop: function stop(editor) {
     var _this$sender = this.sender,
@@ -27639,6 +27662,7 @@ var cmdVis = 'sw-visibility';
 
     editor.refresh();
     this.tglPointers(editor, 1);
+    this.tglEffects();
   }
 });
 
@@ -27894,6 +27918,7 @@ var showOffsets;
     this.updateToolsGlobal(); // This will hide some elements from the select component
 
     this.updateToolsLocal(result);
+    this.initResize(component);
   }),
   updateGlobalPos: function updateGlobalPos() {
     var sel = this.getElSelected();
@@ -27918,6 +27943,8 @@ var showOffsets;
 
     this.currentDoc = null;
     this.em.setHovered(0);
+    this.elHovered = undefined;
+    this.updateToolsLocal();
     this.canvas.getFrames().forEach(function (frame) {
       var view = frame.view;
       var el = view && view.getToolsEl();
@@ -28148,8 +28175,7 @@ var showOffsets;
     var pfx = config.stylePrefix || '';
     var resizeClass = "".concat(pfx, "resizing");
     var model = !Object(underscore__WEBPACK_IMPORTED_MODULE_3__["isElement"])(elem) && Object(utils_mixins__WEBPACK_IMPORTED_MODULE_4__["isTaggableNode"])(elem) ? elem : em.getSelected();
-    var resizable = model.get('resizable');
-    var el = Object(underscore__WEBPACK_IMPORTED_MODULE_3__["isElement"])(elem) ? elem : model.getEl();
+    var resizable = model && model.get('resizable');
     var options = {};
     var modelToStyle;
 
@@ -28163,6 +28189,7 @@ var showOffsets;
     };
 
     if (editor && resizable) {
+      var el = Object(underscore__WEBPACK_IMPORTED_MODULE_3__["isElement"])(elem) ? elem : model.getEl();
       options = {
         // Here the resizer is updated with the current element height and width
         onStart: function onStart(e) {
@@ -28244,7 +28271,7 @@ var showOffsets;
             style[keyHeight] = autoHeight ? 'auto' : "".concat(rect.h).concat(unitHeight);
           }
 
-          modelToStyle.addStyle(_objectSpread({}, style, {
+          modelToStyle.addStyle(_objectSpread(_objectSpread({}, style), {}, {
             en: en
           }), {
             avoidStore: !store
@@ -28258,7 +28285,7 @@ var showOffsets;
       };
 
       if (_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0___default()(resizable) == 'object') {
-        options = _objectSpread({}, options, {}, resizable);
+        options = _objectSpread(_objectSpread({}, options), resizable);
       }
 
       this.resizer = editor.runCommand('resize', {
@@ -28409,7 +28436,7 @@ var showOffsets;
     var frameOff = this.canvas.canvasRectOffset(el, pos);
     var topOff = frameOff.top;
     var leftOff = frameOff.left;
-    this.updateBadge(el, pos, _objectSpread({}, badgeOpts, {
+    this.updateBadge(el, pos, _objectSpread(_objectSpread({}, badgeOpts), {}, {
       view: view,
       topOff: topOff,
       leftOff: leftOff
@@ -28457,24 +28484,14 @@ var showOffsets;
     this.updateToolbarPos({
       top: targetToElem.top,
       left: targetToElem.left
-    }); // const { resizer, em } = this;
-    // const model = em.getSelected();
-    // const el = model && model.getEl();
-    // if (!el) return;
-    // if (el && this.elSelected !== el) {
-    //   this.elSelected = el;
-    //   const pos = this.getElementPos(el);
-    //   this.updateToolbarPos(el, pos);
-    //   this.showFixedElementOffset(el, pos);
-    //   resizer && resizer.updateContainer();
-    // }
+    });
   },
 
   /**
    * Update attached elements, eg. component toolbar
    */
   updateAttached: Object(underscore__WEBPACK_IMPORTED_MODULE_3__["debounce"])(function () {
-    this.updateToolsGlobal();
+    this.updateGlobalPos();
   }),
 
   /**
@@ -29220,7 +29237,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
         var style = rule.style || {};
 
         if (updateStyle) {
-          var styleUpdate = opts.extend ? _objectSpread({}, model.get('style'), {}, style) : style;
+          var styleUpdate = opts.extend ? _objectSpread(_objectSpread({}, model.get('style')), style) : style;
           model.set('style', styleUpdate);
         }
 
@@ -30002,7 +30019,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
     add: function add(id, width) {
       var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-      var obj = _objectSpread({}, opts, {
+      var obj = _objectSpread(_objectSpread({}, opts), {}, {
         id: id,
         name: opts.name || id,
         width: width
@@ -30825,6 +30842,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
      * @param {string} [component.content=''] String inside component
      * @param {Object} [component.style={}] Style object
      * @param {Object} [component.attributes={}] Attribute object
+     * @param {Object} opt the options object to be used by the [Components.add]{@link getComponents} method
      * @return {Component|Array<Component>} Component/s added
      * @example
      * // Example of a new component with some extra property
@@ -30839,7 +30857,8 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
      * });
      */
     addComponent: function addComponent(component) {
-      return this.getComponents().add(component);
+      var opt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      return this.getComponents().add(component, opt);
     },
 
     /**
@@ -30869,11 +30888,13 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
     /**
      * Set components
      * @param {Object|string} components HTML string or components model
+     * @param {Object} opt the options object to be used by the {@link addComponent} method
      * @return {this}
      * @private
      */
     setComponents: function setComponents(components) {
-      this.clear().addComponent(components);
+      var opt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      this.clear().addComponent(components, opt);
     },
 
     /**
@@ -30921,8 +30942,8 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
       if (_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0___default()(model) === 'object') {
-        methods.model = modelToExt.extend(_objectSpread({}, model, {}, getExtendedObj(extendFn, model, modelToExt), {
-          defaults: _objectSpread({}, modelToExt.prototype.defaults, {}, Object(underscore__WEBPACK_IMPORTED_MODULE_3__["result"])(model, 'defaults') || {})
+        methods.model = modelToExt.extend(_objectSpread(_objectSpread(_objectSpread({}, model), getExtendedObj(extendFn, model, modelToExt)), {}, {
+          defaults: _objectSpread(_objectSpread({}, modelToExt.prototype.defaults), Object(underscore__WEBPACK_IMPORTED_MODULE_3__["result"])(model, 'defaults') || {})
         }), {
           isComponent: compType && !extendType && !isComponent ? modelToExt.isComponent : isComponent || function () {
             return 0;
@@ -30931,7 +30952,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
       }
 
       if (_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_0___default()(view) === 'object') {
-        methods.view = viewToExt.extend(_objectSpread({}, view, {}, getExtendedObj(extendFnView, view, viewToExt)));
+        methods.view = viewToExt.extend(_objectSpread(_objectSpread({}, view), getExtendedObj(extendFnView, view, viewToExt)));
       }
 
       if (compType) {
@@ -31224,7 +31245,7 @@ var Component = backbone__WEBPACK_IMPORTED_MODULE_5___default.a.Model.extend(dom
         return newAttr[prop] = parent.get(prop);
       });
       newAttr.propagate = toPropagate;
-      newAttr = _objectSpread({}, newAttr, {}, props);
+      newAttr = _objectSpread(_objectSpread({}, newAttr), props);
       this.set(newAttr);
     }
 
@@ -31240,7 +31261,7 @@ var Component = backbone__WEBPACK_IMPORTED_MODULE_5___default.a.Model.extend(dom
     this.em = em;
     this.frame = opt.frame;
     this.config = opt.config || {};
-    this.set('attributes', _objectSpread({}, this.defaults.attributes || {}, {}, this.get('attributes') || {}));
+    this.set('attributes', _objectSpread(_objectSpread({}, this.defaults.attributes || {}), this.get('attributes') || {}));
     this.ccid = Component.createId(this);
     this.initClasses();
     this.initTraits();
@@ -31465,7 +31486,7 @@ var Component = backbone__WEBPACK_IMPORTED_MODULE_5___default.a.Model.extend(dom
    * component.addAttributes({ 'data-key': 'value' });
    */
   addAttributes: function addAttributes(attrs) {
-    var newAttrs = _objectSpread({}, this.getAttributes(), {}, attrs);
+    var newAttrs = _objectSpread(_objectSpread({}, this.getAttributes()), attrs);
 
     this.setAttributes(newAttrs);
     return this;
@@ -31512,11 +31533,11 @@ var Component = backbone__WEBPACK_IMPORTED_MODULE_5___default.a.Model.extend(dom
     if (em && em.getConfig('avoidInlineStyle') && !opt.temporary) {
       var style = this.get('style') || {};
       prop = Object(underscore__WEBPACK_IMPORTED_MODULE_2__["isString"])(prop) ? this.parseStyle(prop) : prop;
-      prop = _objectSpread({}, prop, {}, style);
+      prop = _objectSpread(_objectSpread({}, prop), style);
       var state = em.get('state');
       var cc = em.get('CssComposer');
       var propOrig = this.getStyle();
-      this.rule = cc.setIdRule(this.getId(), prop, _objectSpread({}, opts, {
+      this.rule = cc.setIdRule(this.getId(), prop, _objectSpread(_objectSpread({}, opts), {}, {
         state: state
       }));
       var diff = Object(utils_mixins__WEBPACK_IMPORTED_MODULE_3__["shallowDiff"])(propOrig, prop);
@@ -32544,7 +32565,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 var svgAttrs = 'xmlns="http://www.w3.org/2000/svg" width="100" viewBox="0 0 24 24" style="fill: rgba(0,0,0,0.15); transform: scale(0.75)"';
 /* harmony default export */ __webpack_exports__["default"] = (_Component__WEBPACK_IMPORTED_MODULE_2__["default"].extend({
-  defaults: _objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_2__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_2__["default"].prototype.defaults), {}, {
     type: 'image',
     tagName: 'img',
     void: 1,
@@ -32705,7 +32726,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_ComponentText__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _ComponentText__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _ComponentText__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     tagName: 'label',
     traits: ['id', 'title', 'for']
   })
@@ -32741,7 +32762,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_ComponentText__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _ComponentText__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _ComponentText__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     type: 'link',
     tagName: 'a',
     traits: ['title', 'href', 'target']
@@ -32815,7 +32836,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_ComponentImage__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _ComponentImage__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _ComponentImage__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     type: 'map',
     src: '',
     void: 0,
@@ -32938,7 +32959,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_Component__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     type: 'script',
     droppable: false,
     draggable: false,
@@ -32983,7 +33004,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_Component__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     resizable: {
       ratioDefault: 1
     },
@@ -33032,7 +33053,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
  */
 
 /* harmony default export */ __webpack_exports__["default"] = (_ComponentSvg__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _ComponentSvg__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _ComponentSvg__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     selectable: false,
     hoverable: false,
     layerable: false
@@ -33070,7 +33091,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_Component__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     type: 'table',
     tagName: 'table',
     droppable: ['tbody', 'thead', 'tfoot']
@@ -33118,7 +33139,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_Component__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     type: 'tbody',
     tagName: 'tbody',
     draggable: ['table'],
@@ -33192,7 +33213,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_Component__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     type: 'cell',
     tagName: 'td',
     draggable: ['tr']
@@ -33235,7 +33256,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_ComponentTableBody__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _ComponentTableBody__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _ComponentTableBody__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     type: 'tfoot',
     tagName: 'tfoot'
   })
@@ -33275,7 +33296,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_ComponentTableBody__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _ComponentTableBody__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _ComponentTableBody__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     type: 'thead',
     tagName: 'thead'
   })
@@ -33315,7 +33336,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_Component__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     tagName: 'tr',
     draggable: ['thead', 'tbody', 'tfoot'],
     droppable: ['th', 'td']
@@ -33348,7 +33369,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_Component__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     type: 'text',
     droppable: false,
     editable: true
@@ -33383,7 +33404,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_Component__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _Component__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     droppable: false,
     layerable: false,
     editable: true
@@ -33431,7 +33452,7 @@ var yt = 'yt';
 var vi = 'vi';
 var ytnc = 'ytnc';
 /* harmony default export */ __webpack_exports__["default"] = (_ComponentImage__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _ComponentImage__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _ComponentImage__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     type: 'video',
     tagName: 'video',
     videoId: '',
@@ -33954,7 +33975,7 @@ var Component;
     Component.checkId(parsed.html, parsed.css, domc.componentsById);
 
     if (parsed.css && cssc && !opt.temporary) {
-      cssc.addCollection(parsed.css, _objectSpread({}, opt, {
+      cssc.addCollection(parsed.css, _objectSpread(_objectSpread({}, opt), {}, {
         extend: 1
       }));
     }
@@ -34143,6 +34164,7 @@ __webpack_require__.r(__webpack_exports__);
     dblclick: 'onActive',
     click: 'initResize',
     error: 'onError',
+    load: 'onLoad',
     dragstart: 'noDrag'
   },
   initialize: function initialize(o) {
@@ -34224,6 +34246,10 @@ __webpack_require__.r(__webpack_exports__);
       fallback: 1
     });
     if (fallback) this.el.src = fallback;
+  },
+  onLoad: function onLoad() {
+    // Used to update component tools box (eg. toolbar, resizer) once the image is loaded
+    this.em.trigger('change:canvasOffset');
   },
   noDrag: function noDrag(ev) {
     ev.preventDefault();
@@ -35014,7 +35040,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
     this.initComponents({
       avoidRender: 1
     });
-    this.events = _objectSpread({}, this.events, {}, draggableComponents && {
+    this.events = _objectSpread(_objectSpread({}, this.events), draggableComponents && {
       dragstart: 'handleDragStart'
     });
     this.delegateEvents();
@@ -35272,13 +35298,13 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
         _innertext = _model$attributes._innertext;
     var draggableComponents = config.draggableComponents;
 
-    var defaultAttr = _objectSpread({
+    var defaultAttr = _objectSpread(_objectSpread(_objectSpread({
       'data-gjs-type': type || 'default'
     }, draggableComponents && !_innertext ? {
       draggable: true
-    } : {}, {}, highlightable ? {
+    } : {}), highlightable ? {
       'data-highlightable': 1
-    } : {}, {}, textable ? {
+    } : {}), textable ? {
       contenteditable: 'false',
       'data-gjs-textable': 'true'
     } : {}); // Remove all current attributes
@@ -35291,7 +35317,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
       return $el.removeAttr(attr);
     });
 
-    var attr = _objectSpread({}, defaultAttr, {}, model.getAttributes()); // Remove all `false` attributes
+    var attr = _objectSpread(_objectSpread({}, defaultAttr), model.getAttributes()); // Remove all `false` attributes
 
 
     Object(underscore__WEBPACK_IMPORTED_MODULE_2__["keys"])(attr).forEach(function (key) {
@@ -35738,7 +35764,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
         left = _editor$Canvas$getFra.left,
         top = _editor$Canvas$getFra.top;
 
-    var calibrated = _objectSpread({}, event, {
+    var calibrated = _objectSpread(_objectSpread({}, event), {}, {
       clientX: event.clientX - left,
       clientY: event.clientY - top
     });
@@ -35838,7 +35864,7 @@ var parseStyle = Object(parser_model_ParserHtml__WEBPACK_IMPORTED_MODULE_3__["de
    * @return {Object}
    */
   extendStyle: function extendStyle(prop) {
-    return _objectSpread({}, this.getStyle(), {}, prop);
+    return _objectSpread(_objectSpread({}, this.getStyle()), prop);
   },
 
   /**
@@ -36294,7 +36320,7 @@ Object(utils_ColorPicker__WEBPACK_IMPORTED_MODULE_3__["default"])($);
       var changed = 0;
       var previousColor;
       this.$el.find("[data-colorp-c]").append(colorEl);
-      colorEl.spectrum(_objectSpread({
+      colorEl.spectrum(_objectSpread(_objectSpread(_objectSpread({
         containerClassName: "".concat(ppfx, "one-bg ").concat(ppfx, "two-color"),
         appendTo: elToAppend || 'body',
         maxSelectionSize: 8,
@@ -36303,7 +36329,7 @@ Object(utils_ColorPicker__WEBPACK_IMPORTED_MODULE_3__["default"])($);
         chooseText: 'Ok',
         cancelText: '⨯',
         palette: []
-      }, colorPickerConfig, {}, model.get('colorPicker') || {}, {
+      }, colorPickerConfig), model.get('colorPicker') || {}), {}, {
         move: function move(color) {
           var cl = getColor(color);
           cpStyle.backgroundColor = cl;
@@ -37098,7 +37124,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 /* harmony default export */ __webpack_exports__["default"] = (function () {
   var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-  var c = _objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_2__["default"], {}, config);
+  var c = _objectSpread(_objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_2__["default"]), config);
 
   c.pStylePrefix = c.stylePrefix;
   var em = new _model_Editor__WEBPACK_IMPORTED_MODULE_3__["default"](c);
@@ -37124,7 +37150,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
       var _this = this;
 
       var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      em.init(this, _objectSpread({}, c, {}, opts));
+      em.init(this, _objectSpread(_objectSpread({}, c), opts));
       ['I18n', 'Utils', 'Config', 'Commands', 'Keymaps', 'Modal', 'Panels', 'Canvas', 'Parser', 'CodeManager', 'UndoManager', 'RichTextEditor', 'DomComponents', ['Components', 'DomComponents'], 'LayerManager', ['Layers', 'LayerManager'], 'CssComposer', ['Css', 'CssComposer'], 'StorageManager', ['Storage', 'StorageManager'], 'AssetManager', ['Assets', 'AssetManager'], 'BlockManager', ['Blocks', 'BlockManager'], 'TraitManager', ['Traits', 'TraitManager'], 'SelectorManager', ['Selectors', 'SelectorManager'], 'StyleManager', ['Styles', 'StyleManager'], 'DeviceManager', ['Devices', 'DeviceManager']].forEach(function (prop) {
         if (Array.isArray(prop)) {
           _this[prop[0]] = em.get(prop[1]);
@@ -37199,6 +37225,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
     /**
      * Set components inside editor's canvas. This method overrides actual components
      * @param {Array<Object>|Object|string} components HTML string or components model
+     * @param {Object} opt the options object to be used by the [setComponents]{@link em#setComponents} method
      * @return {this}
      * @example
      * editor.setComponents('<div class="cls">New component</div>');
@@ -37210,7 +37237,8 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
      * });
      */
     setComponents: function setComponents(components) {
-      em.setComponents(components);
+      var opt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      em.setComponents(components, opt);
       return this;
     },
 
@@ -37246,6 +37274,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
     /**
      * Set style inside editor's canvas. This method overrides actual style
      * @param {Array<Object>|Object|string} style CSS string or style model
+     * @param {Object} opt the options object to be used by the [setStyle]{@link em#setStyle} method
      * @return {this}
      * @example
      * editor.setStyle('.cls{color: red}');
@@ -37256,7 +37285,8 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
      * });
      */
     setStyle: function setStyle(style) {
-      em.setStyle(style);
+      var opt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      em.setStyle(style, opt);
       return this;
     },
 
@@ -38037,11 +38067,13 @@ var logs = {
   /**
    * Set components inside editor's canvas. This method overrides actual components
    * @param {Object|string} components HTML string or components model
+   * @param {Object} opt the options object to be used by the [setComponents]{@link setComponents} method
    * @return {this}
    * @private
    */
   setComponents: function setComponents(components) {
-    return this.get('DomComponents').setComponents(components);
+    var opt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    return this.get('DomComponents').setComponents(components, opt);
   },
 
   /**
@@ -38060,17 +38092,19 @@ var logs = {
   /**
    * Set style inside editor's canvas. This method overrides actual style
    * @param {Object|string} style CSS string or style model
+   * @param {Object} opt the options object to be used by the [CssRules.add]{@link rules#add} method
    * @return {this}
    * @private
    */
   setStyle: function setStyle(style) {
+    var opt = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     var rules = this.get('CssComposer').getAll();
 
     for (var i = 0, len = rules.length; i < len; i++) {
       rules.pop();
     }
 
-    rules.add(style);
+    rules.add(style, opt);
     return this;
   },
 
@@ -38408,17 +38442,17 @@ var logs = {
     }
   },
   logInfo: function logInfo(msg, opts) {
-    this.log(msg, _objectSpread({}, opts, {
+    this.log(msg, _objectSpread(_objectSpread({}, opts), {}, {
       level: 'info'
     }));
   },
   logWarning: function logWarning(msg, opts) {
-    this.log(msg, _objectSpread({}, opts, {
+    this.log(msg, _objectSpread(_objectSpread({}, opts), {}, {
       level: 'warning'
     }));
   },
   logError: function logError(msg, opts) {
-    this.log(msg, _objectSpread({}, opts, {
+    this.log(msg, _objectSpread(_objectSpread({}, opts), {}, {
       level: 'error'
     }));
   },
@@ -38429,7 +38463,7 @@ var logs = {
         colorPicker = _config$colorPicker === void 0 ? {} : _config$colorPicker;
     var elToAppend = config.el;
     var ppfx = config.stylePrefix;
-    return Object(cash_dom__WEBPACK_IMPORTED_MODULE_2__["default"])(el).spectrum(_objectSpread({
+    return Object(cash_dom__WEBPACK_IMPORTED_MODULE_2__["default"])(el).spectrum(_objectSpread(_objectSpread({
       containerClassName: "".concat(ppfx, "one-bg ").concat(ppfx, "two-color"),
       appendTo: elToAppend || 'body',
       maxSelectionSize: 8,
@@ -38438,7 +38472,7 @@ var logs = {
       showAlpha: true,
       chooseText: 'Ok',
       cancelText: '⨯'
-    }, opts, {}, colorPicker));
+    }, opts), colorPicker));
   },
 
   /**
@@ -38642,8 +38676,8 @@ var deepAssign = function deepAssign() {
      */
     init: function init() {
       var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      this.config = _objectSpread({}, _config__WEBPACK_IMPORTED_MODULE_3__["default"], {}, opts, {
-        messages: _objectSpread({}, _config__WEBPACK_IMPORTED_MODULE_3__["default"].messages, {}, opts.messages || {})
+      this.config = _objectSpread(_objectSpread(_objectSpread({}, _config__WEBPACK_IMPORTED_MODULE_3__["default"]), opts), {}, {
+        messages: _objectSpread(_objectSpread({}, _config__WEBPACK_IMPORTED_MODULE_3__["default"].messages), opts.messages || {})
       });
 
       if (this.config.detectLocale) {
@@ -38975,14 +39009,37 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 
-Object(utils_polyfills__WEBPACK_IMPORTED_MODULE_4__["default"])();
+Object(utils_polyfills__WEBPACK_IMPORTED_MODULE_4__["default"])(); // components
+
+var myCustomComponentTypes = function myCustomComponentTypes(editor) {
+  editor.DomComponents.addType('my-header-type', {
+    isComponent: function isComponent(el) {
+      return el.tagName === 'HEADER';
+    },
+    model: {
+      defaults: {
+        tagName: 'div',
+        components: 'Header test',
+        attributes: {
+          htitle: 'Insert title here'
+        },
+        traits: [{
+          type: 'header-title',
+          name: 'htitle',
+          label: 'Header'
+        }, 'link', 'size', 'Html tag', 'alignment']
+      }
+    }
+  });
+};
+
 var plugins = new _plugin_manager__WEBPACK_IMPORTED_MODULE_5__["default"]();
 var editors = [];
 var defaultConfig = {
   // If true renders editor on init
   autorender: 1,
   // Array of plugins to init
-  plugins: [],
+  plugins: [myCustomComponentTypes],
   // Custom options for plugins
   pluginsOpts: {}
 };
@@ -38991,7 +39048,7 @@ var defaultConfig = {
   editors: editors,
   plugins: plugins,
   // Will be replaced on build
-  version: '0.16.18',
+  version: '<# VERSION #>',
 
   /**
    * Initialize the editor with passed options
@@ -39012,11 +39069,29 @@ var defaultConfig = {
     var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
     var els = config.container;
     if (!els) throw new Error("'container' is required");
-    config = _objectSpread({}, defaultConfig, {}, config, {
+    config = _objectSpread(_objectSpread(_objectSpread({}, defaultConfig), config), {}, {
       grapesjs: this
     });
     config.el = Object(underscore__WEBPACK_IMPORTED_MODULE_3__["isElement"])(els) ? els : document.querySelector(els);
-    var editor = new _editor__WEBPACK_IMPORTED_MODULE_2__["default"](config).init(); // Load plugins
+    var editor = new _editor__WEBPACK_IMPORTED_MODULE_2__["default"](config).init({
+      height: '100%',
+      container: '#gjs',
+      fromElement: 0,
+      showDevices: false,
+      showOffsets: 1,
+      selectorManager: {
+        componentFirst: true
+      }
+    }); // blocks
+
+    var blockManager = editor.BlockManager;
+    blockManager.add('my-block', {
+      label: '<img height="40px" src="https://image.flaticon.com/icons/svg/32/32286.svg" /> <br /> Test Block',
+      //content: '<div class="test-block">Header Test Block</div>',
+      content: {
+        type: 'my-header-type'
+      }
+    }); // Load plugins
 
     config.plugins.forEach(function (pluginId) {
       var plugin = plugins.get(pluginId);
@@ -39033,6 +39108,19 @@ var defaultConfig = {
         pluginId(editor, plgOptions);
       } else {
         console.warn("Plugin ".concat(pluginId, " not found"));
+      }
+    }); //traits
+
+    editor.TraitManager.addType('header-title', {
+      createInput: function createInput(_ref) {
+        var trait = _ref.trait;
+        var el = document.createElement('div');
+        el.innerHTML = "\n          <div class=\"settings-div\">\n            <div class=\"center\" >\n                <textarea class=\"form-control\" id=\"exampleFormControlTextarea1\" rows=\"2\"></textarea>\n            </div>\n          </div>\n        ";
+        return el;
+      },
+      createLabel: function createLabel(_ref2) {
+        var label = _ref2.label;
+        return "<div>\n                  <div><b>Lo estoy</b></div>\n                    ".concat(label, "\n                  <div><b>Logrando</b></div>\n                </div>");
       }
     }); // Execute `onLoad` on modules once all plugins are initialized.
     // A plugin might have extended/added some custom type so this
@@ -39170,7 +39258,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
      */
     init: function init() {
       var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      config = _objectSpread({}, configDef, {}, opts);
+      config = _objectSpread(_objectSpread({}, configDef), opts);
       em = config.em;
       this.em = em;
       return this;
@@ -39395,7 +39483,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
      */
     init: function init() {
       var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      c = _objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_1__["default"], {}, config);
+      c = _objectSpread(_objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_1__["default"]), config);
       var em = c.em;
       this.em = em;
       var ppfx = c.pStylePrefix;
@@ -39776,7 +39864,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
     name: 'LayerManager',
     init: function init() {
       var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      config = _objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_1__["default"], {}, opts);
+      config = _objectSpread(_objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_1__["default"]), opts);
       config.stylePrefix = opts.pStylePrefix;
       em = config.em;
       return this;
@@ -39967,7 +40055,7 @@ var ItemsView;
     var model = this.model;
     var hClass = "".concat(pfx, "layer-hidden");
     var hideIcon = 'fa-eye-slash';
-    var hidden = model.getStyle().display == 'none';
+    var hidden = model.getStyle().display === 'none';
     var method = hidden ? 'addClass' : 'removeClass';
     this.$el[method](hClass);
     this.getVisibilityEl()[method](hideIcon);
@@ -40171,13 +40259,13 @@ var ItemsView;
   /**
    * Check if component is visible
    *
-   * @return bool
+   * @return boolean
    * */
   isVisible: function isVisible() {
-    var css = this.model.get('style'),
-        pr = css.display;
-    if (pr && pr == 'none') return;
-    return 1;
+    var _this$model$getStyle = this.model.getStyle(),
+        display = _this$model$getStyle.display;
+
+    return !(display && display === 'none');
   },
 
   /**
@@ -41117,14 +41205,14 @@ var $ = backbone__WEBPACK_IMPORTED_MODULE_1___default.a.$;
       model.set('active', true, {
         silent: true
       }).trigger('checkActive');
-      commands.runCommand(command, _objectSpread({}, options, {
+      commands.runCommand(command, _objectSpread(_objectSpread({}, options), {}, {
         sender: model
       })); // Disable button if the command has no stop method
 
       command.noStop && model.set('active', false);
     } else {
       $el.removeClass(activeCls);
-      commands.stopCommand(command, _objectSpread({}, options, {
+      commands.stopCommand(command, _objectSpread(_objectSpread({}, options), {}, {
         sender: model,
         force: 1
       }));
@@ -41591,7 +41679,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
      */
     init: function init() {
       var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      conf = _objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_1__["default"], {}, config);
+      conf = _objectSpread(_objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_1__["default"]), config);
       conf.Parser = this;
       pHtml = new _model_ParserHtml__WEBPACK_IMPORTED_MODULE_3__["default"](conf);
       pCss = new _model_ParserCss__WEBPACK_IMPORTED_MODULE_2__["default"](conf);
@@ -42124,6 +42212,11 @@ __webpack_require__.r(__webpack_exports__);
 
             model[modelAttr] = nodeValue;
           } else {
+            // Check for attributes from props (eg. required, disabled)
+            if (nodeValue === '' && node[nodeName] === true) {
+              nodeValue = true;
+            }
+
             model.attributes[nodeName] = nodeValue;
           }
         } // Check for nested elements but avoid it if already provided
@@ -42431,7 +42524,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
      */
     init: function init() {
       var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      config = _objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_4__["default"], {}, opts);
+      config = _objectSpread(_objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_4__["default"]), opts);
       var ppfx = config.pStylePrefix;
 
       if (ppfx) {
@@ -42779,12 +42872,12 @@ var defActions = {
   },
   strikethrough: {
     name: 'strikethrough',
-    icon: '<strike>S</strike>',
+    icon: '<s>S</s>',
     attributes: {
       title: 'Strike-through'
     },
     result: function result(rte) {
-      return rte.exec('strikeThrough');
+      return rte.insertHTML("<s>".concat(rte.selection(), "</s>"));
     }
   },
   link: {
@@ -42833,7 +42926,7 @@ var RichTextEditor = /*#__PURE__*/function () {
       if (typeof action === 'string') {
         action = defActions[action];
       } else if (defActions[action.name]) {
-        action = _objectSpread({}, defActions[action.name], {}, action);
+        action = _objectSpread(_objectSpread({}, defActions[action.name]), action);
       }
 
       settAct[i] = action;
@@ -42841,13 +42934,13 @@ var RichTextEditor = /*#__PURE__*/function () {
     var actions = settAct.length ? settAct : Object.keys(defActions).map(function (action) {
       return defActions[action];
     });
-    settings.classes = _objectSpread({}, {
+    settings.classes = _objectSpread(_objectSpread({}, {
       actionbar: 'actionbar',
       button: 'action',
       active: 'active',
       disabled: 'disabled',
       inactive: 'inactive'
-    }, {}, settings.classes);
+    }), settings.classes);
     var classes = settings.classes;
     var actionbar = settings.actionbar;
     this.actionbar = actionbar;
@@ -43312,7 +43405,7 @@ var isClass = function isClass(str) {
      */
     init: function init() {
       var conf = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      c = _objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_3__["default"], {}, conf);
+      c = _objectSpread(_objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_3__["default"]), conf);
       var em = c.em;
       var ppfx = c.pStylePrefix;
       this.em = em;
@@ -44462,7 +44555,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
      */
     init: function init() {
       var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      c = _objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_1__["default"], {}, config);
+      c = _objectSpread(_objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_1__["default"]), config);
       em = c.em;
       if (c._disable) c.type = 0;
       defaultStorages.remote = new _model_RemoteStorage__WEBPACK_IMPORTED_MODULE_3__["default"](c);
@@ -44955,7 +45048,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
     var fetchOpts = this.get('fetchOptions') || {};
     var addOpts = Object(underscore__WEBPACK_IMPORTED_MODULE_3__["isFunction"])(fetchOpts) ? fetchOpts(fetchOptions) : fetchOptions;
     this.onStart();
-    this.fetch(url, _objectSpread({}, fetchOptions, {}, addOpts || {})).then(function (res) {
+    this.fetch(url, _objectSpread(_objectSpread({}, fetchOptions), addOpts || {})).then(function (res) {
       return (res.status / 200 | 0) == 1 ? res.text() : res.text().then(function (text) {
         return Promise.reject(text);
       });
@@ -45089,7 +45182,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
      * @private
      */
     init: function init(config) {
-      c = _objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_2__["default"], {}, config);
+      c = _objectSpread(_objectSpread({}, _config_config__WEBPACK_IMPORTED_MODULE_2__["default"]), config);
       var ppfx = c.pStylePrefix;
       this.em = c.em;
       if (ppfx) c.stylePrefix = ppfx + c.stylePrefix;
@@ -45609,7 +45702,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
         value = propModel.parseValue(value.trim()).value;
         var layer = layers[i];
 
-        var propertyObj = _objectSpread({}, propModel.attributes, {}, {
+        var propertyObj = _objectSpread(_objectSpread({}, propModel.attributes), {
           value: value
         });
 
@@ -45824,7 +45917,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
       var property = _this.at(i);
 
       if (!property) return;
-      properties.push(_objectSpread({}, property.attributes, {}, {
+      properties.push(_objectSpread(_objectSpread({}, property.attributes), {
         value: value
       }));
     });
@@ -45957,7 +46050,7 @@ var Property = backbone__WEBPACK_IMPORTED_MODULE_1___default.a.Model.extend({
    */
   setValueFromInput: function setValueFromInput(value, complete) {
     var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-    this.setValue(value, complete, _objectSpread({}, opts, {
+    this.setValue(value, complete, _objectSpread(_objectSpread({}, opts), {}, {
       fromInput: 1
     }));
   },
@@ -46087,7 +46180,7 @@ var Property = backbone__WEBPACK_IMPORTED_MODULE_1___default.a.Model.extend({
 }, {
   callParentInit: function callParentInit(property, ctx, props) {
     var opts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-    property.prototype.initialize.apply(ctx, [props, _objectSpread({}, opts, {
+    property.prototype.initialize.apply(ctx, [props, _objectSpread(_objectSpread({}, opts), {}, {
       skipInit: 1
     })]);
   },
@@ -46120,7 +46213,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_Property__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _Property__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _Property__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     // 'background' is a good example where to make a difference
     // between detached and not
     //
@@ -46863,7 +46956,7 @@ __webpack_require__.r(__webpack_exports__);
 
           case 'font-family':
             var ss = ', sans-serif';
-            var fonts = ['Arial, Helvetica' + ss, 'Arial Black, Gadget' + ss, 'Brush Script MT' + ss, 'Comic Sans MS, cursive' + ss, 'Courier New, Courier, monospace', 'Georgia, serif', 'Helvetica, serif', 'Impact, Charcoal' + ss, 'Lucida Sans Unicode, Lucida Grande' + ss, 'Tahoma, Geneva' + ss, 'Times New Roman, Times, serif', 'Trebuchet MS, Helvetica' + ss, 'Verdana, Geneva' + ss];
+            var fonts = ['Arial, Helvetica' + ss, 'Arial Black, Gadget' + ss, 'Brush Script MT' + ss, 'Comic Sans MS, cursive' + ss, 'Courier New, Courier, monospace', 'Georgia, serif', 'Helvetica' + ss, 'Impact, Charcoal' + ss, 'Lucida Sans Unicode, Lucida Grande' + ss, 'Tahoma, Geneva' + ss, 'Times New Roman, Times, serif', 'Trebuchet MS, Helvetica' + ss, 'Verdana, Geneva' + ss];
             obj.list = [];
 
             for (var j = 0, l = fonts.length; j < l; j++) {
@@ -47146,7 +47239,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_Property__WEBPACK_IMPORTED_MODULE_2__["default"].extend({
-  defaults: _objectSpread({}, _Property__WEBPACK_IMPORTED_MODULE_2__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _Property__WEBPACK_IMPORTED_MODULE_2__["default"].prototype.defaults), {}, {
     // Array of units, eg. ['px', '%']
     units: [],
     // Selected unit, eg. 'px'
@@ -47231,7 +47324,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 /* harmony default export */ __webpack_exports__["default"] = (_Property__WEBPACK_IMPORTED_MODULE_2__["default"].extend({
   defaults: function defaults() {
-    return _objectSpread({}, _Property__WEBPACK_IMPORTED_MODULE_2__["default"].prototype.defaults, {
+    return _objectSpread(_objectSpread({}, _Property__WEBPACK_IMPORTED_MODULE_2__["default"].prototype.defaults), {}, {
       // Array of options, eg. [{name: 'Label ', value: '100'}]
       options: [],
       full: 1
@@ -47292,7 +47385,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 /* harmony default export */ __webpack_exports__["default"] = (_PropertyRadio__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
   defaults: function defaults() {
-    return _objectSpread({}, _PropertyRadio__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults(), {
+    return _objectSpread(_objectSpread({}, _PropertyRadio__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults()), {}, {
       full: 0
     });
   }
@@ -47320,7 +47413,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_PropertyInteger__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
-  defaults: _objectSpread({}, _PropertyInteger__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _PropertyInteger__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.defaults), {}, {
     showInput: 1
   })
 }));
@@ -47351,7 +47444,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 /* harmony default export */ __webpack_exports__["default"] = (_PropertyComposite__WEBPACK_IMPORTED_MODULE_2__["default"].extend({
-  defaults: _objectSpread({}, _PropertyComposite__WEBPACK_IMPORTED_MODULE_2__["default"].prototype.defaults, {
+  defaults: _objectSpread(_objectSpread({}, _PropertyComposite__WEBPACK_IMPORTED_MODULE_2__["default"].prototype.defaults), {}, {
     // Array of layers (which contain properties)
     layers: [],
     // The separator used to join layer values
@@ -47995,7 +48088,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 /* harmony default export */ __webpack_exports__["default"] = (_PropertyIntegerView__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
   setValue: function setValue(value) {
     var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    opts = _objectSpread({}, opts, {
+    opts = _objectSpread(_objectSpread({}, opts), {}, {
       silent: 1
     });
     this.inputInst.setValue(value, opts);
@@ -48116,7 +48209,7 @@ var $ = backbone__WEBPACK_IMPORTED_MODULE_1___default.a.$;
     var that = this;
     var model = this.model;
     var result = {
-      config: _objectSpread({}, this.config, {
+      config: _objectSpread(_objectSpread({}, this.config), {}, {
         highlightComputed: 0
       }),
       collection: this.props,
@@ -48529,7 +48622,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 /* harmony default export */ __webpack_exports__["default"] = (_PropertyIntegerView__WEBPACK_IMPORTED_MODULE_1__["default"].extend({
   events: function events() {
-    return _objectSpread({}, _PropertyIntegerView__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.events, {
+    return _objectSpread(_objectSpread({}, _PropertyIntegerView__WEBPACK_IMPORTED_MODULE_1__["default"].prototype.events), {}, {
       'change [type=range]': 'inputValueChanged',
       'input [type=range]': 'inputValueChangedSoft',
       change: ''
@@ -49251,7 +49344,7 @@ var clearProp = 'data-clear-style';
     if (!em) return;
     var property = model.get('property');
 
-    var data = _objectSpread({}, this._getEventData(), {}, addData);
+    var data = _objectSpread(_objectSpread({}, this._getEventData()), addData);
 
     var id = data.id;
     em.trigger('style:update', data);
@@ -49396,7 +49489,7 @@ var clearProp = 'data-clear-style';
       if (onChange && !opt.fromParent) {
         onChange(target, this, opt);
       } else {
-        this.updateTargetStyle(value, null, _objectSpread({}, opt, {
+        this.updateTargetStyle(value, null, _objectSpread(_objectSpread({}, opt), {}, {
           target: target
         }));
       }
@@ -50181,7 +50274,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
     var toSet = {
       value: value
     };
-    this.set(toSet, _objectSpread({}, opts, {
+    this.set(toSet, _objectSpread(_objectSpread({}, opts), {}, {
       avoidStore: 1
     })); // Have to trigger the change
 
@@ -50743,7 +50836,7 @@ var $ = backbone__WEBPACK_IMPORTED_MODULE_2___default.a.$;
       this.model.set('value', el.value);
     }
 
-    this.onEvent(_objectSpread({}, this.getClbOpts(), {
+    this.onEvent(_objectSpread(_objectSpread({}, this.getClbOpts()), {}, {
       event: event
     }));
   },
@@ -51063,7 +51156,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
      */
     init: function init() {
       var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      config = _objectSpread({}, opts, {}, configDef);
+      config = _objectSpread(_objectSpread({}, opts), configDef);
       em = config.em;
       this.em = em;
       um = new backbone_undo__WEBPACK_IMPORTED_MODULE_1___default.a(_objectSpread({
@@ -53780,7 +53873,7 @@ var Dragger = /*#__PURE__*/function () {
     key: "setOptions",
     value: function setOptions() {
       var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      this.opts = _objectSpread({}, this.opts, {}, opts);
+      this.opts = _objectSpread(_objectSpread({}, this.opts), opts);
     }
   }, {
     key: "toggleDrag",
@@ -54854,7 +54947,7 @@ var Resizer = /*#__PURE__*/function () {
       this.onUpdateContainer({
         el: container,
         resizer: this,
-        opts: _objectSpread({}, opts, {}, opt)
+        opts: _objectSpread(_objectSpread({}, opts), opt)
       });
     }
     /**
@@ -55366,7 +55459,7 @@ var $ = backbone__WEBPACK_IMPORTED_MODULE_1___default.a.$;
           avoidStore: 1,
           avoidUpdateStyle: 1
         };
-        var tempModel = comps.add(dropContent, _objectSpread({}, opts, {
+        var tempModel = comps.add(dropContent, _objectSpread(_objectSpread({}, opts), {}, {
           temporary: 1
         }));
         dropModel = comps.remove(tempModel, opts);
@@ -56040,7 +56133,7 @@ var $ = backbone__WEBPACK_IMPORTED_MODULE_1___default.a.$;
       };
       moved.length ? moved.forEach(function (m) {
         return onEndMove(m, _this3, data);
-      }) : onEndMove(null, this, _objectSpread({}, data, {
+      }) : onEndMove(null, this, _objectSpread(_objectSpread({}, data), {}, {
         cancelled: 1
       }));
     }

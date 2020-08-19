@@ -55,7 +55,8 @@
       @include appearance(none);
 
       color: inherit;
-      border: none;
+      border: 1px solid #ced4da;
+      border-radius: .2rem;
       background-color: transparent;
       box-sizing: border-box;
       width: 100%;

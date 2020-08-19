@@ -2,6 +2,9 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
+  background-color: white;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .#{$app-prefix}block-categories {

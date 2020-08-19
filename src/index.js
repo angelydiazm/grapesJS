@@ -5,6 +5,32 @@ import polyfills from 'utils/polyfills';
 import PluginManager from './plugin_manager';
 
 polyfills();
+// components
+const myCustomComponentTypes = editor => {
+  editor.DomComponents.addType('my-header-type', {
+    isComponent: el => el.tagName === 'HEADER',
+    model: {
+      defaults: {
+        tagName: 'div',
+        components: 'Header test',
+        attributes: {
+          htitle: 'Insert title here'
+        },
+        traits: [
+          {
+            type: 'header-title',
+            name: 'htitle',
+            label: 'Header'
+          },
+          'link',
+          'size',
+          'Html tag',
+          'alignment'
+        ]
+      }
+    }
+  });
+};
 
 const plugins = new PluginManager();
 const editors = [];
@@ -13,7 +39,7 @@ const defaultConfig = {
   autorender: 1,
 
   // Array of plugins to init
-  plugins: [],
+  plugins: [myCustomComponentTypes],
 
   // Custom options for plugins
   pluginsOpts: {}
@@ -44,12 +70,31 @@ export default {
    *   style: '.hello{color: red}',
    * })
    */
+
   init(config = {}) {
     const els = config.container;
     if (!els) throw new Error("'container' is required");
     config = { ...defaultConfig, ...config, grapesjs: this };
     config.el = isElement(els) ? els : document.querySelector(els);
-    const editor = new Editor(config).init();
+    const editor = new Editor(config).init({
+      height: '100%',
+      container: '#gjs',
+      fromElement: 0,
+      showDevices: false,
+      showOffsets: 1,
+      selectorManager: { componentFirst: true }
+    });
+
+    // blocks
+    var blockManager = editor.BlockManager;
+    blockManager.add('my-block', {
+      label:
+        '<img height="40px" src="https://image.flaticon.com/icons/svg/32/32286.svg" /> <br /> Test Block',
+      //content: '<div class="test-block">Header Test Block</div>',
+      content: {
+        type: 'my-header-type'
+      }
+    });
 
     // Load plugins
     config.plugins.forEach(pluginId => {
@@ -68,6 +113,27 @@ export default {
         pluginId(editor, plgOptions);
       } else {
         console.warn(`Plugin ${pluginId} not found`);
+      }
+    });
+    //traits
+    editor.TraitManager.addType('header-title', {
+      createInput({ trait }) {
+        const el = document.createElement('div');
+        el.innerHTML = `
+          <div class="settings-div">
+            <div class="center" >
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="2"></textarea>
+            </div>
+          </div>
+        `;
+        return el;
+      },
+      createLabel({ label }) {
+        return `<div>
+                  <div><b>Lo estoy</b></div>
+                    ${label}
+                  <div><b>Logrando</b></div>
+                </div>`;
       }
     });
 

@@ -23,9 +23,45 @@ const myCustomComponentTypes = editor => {
             label: 'Header'
           },
           'link',
-          'size',
-          'Html tag',
-          'alignment'
+          {
+            type: 'select',
+            label: 'Size',
+            name: 'size',
+            options: [
+              { id: '0', name: 'Default' },
+              { id: '1', name: 'Small' },
+              { id: '2', name: 'Medium' },
+              { id: '3', name: 'Large' },
+              { id: '4', name: 'XL' },
+              { id: '5', name: 'XXL' }
+            ]
+          },
+          {
+            type: 'select',
+            label: 'HTML Tag',
+            name: 'html-tag',
+            options: [
+              { id: '0', name: 'H1' },
+              { id: '1', name: 'H2' },
+              { id: '2', name: 'H3' },
+              { id: '3', name: 'H4' },
+              { id: '4', name: 'H5' },
+              { id: '5', name: 'H6' },
+              { id: '6', name: 'div' },
+              { id: '7', name: 'span' },
+              { id: '8', name: 'p' }
+            ]
+          },
+          {
+            type: 'select',
+            label: 'Alignment',
+            name: 'alignment',
+            options: [
+              { id: '0', name: 'left' },
+              { id: '1', name: 'center' },
+              { id: '2', name: 'right' }
+            ]
+          }
         ]
       }
     }
@@ -130,9 +166,7 @@ export default {
       },
       createLabel({ label }) {
         return `<div>
-                  <div><b>Lo estoy</b></div>
                     ${label}
-                  <div><b>Logrando</b></div>
                 </div>`;
       }
     });

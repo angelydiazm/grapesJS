@@ -52,7 +52,7 @@
     input,
     select,
     textarea {
-      @include appearance(none);
+      @include appearance(auto);
 
       color: inherit;
       border: 1px solid #ced4da;

@@ -39018,7 +39018,7 @@ var myCustomComponentTypes = function myCustomComponentTypes(editor) {
     },
     model: {
       defaults: {
-        tagName: 'div',
+        tagName: 'h1',
         components: 'Header test',
         attributes: {
           htitle: 'Insert title here'
@@ -39027,7 +39027,44 @@ var myCustomComponentTypes = function myCustomComponentTypes(editor) {
           type: 'header-title',
           name: 'htitle',
           label: 'Header'
-        }, 'link', 'size', 'Html tag', 'alignment']
+        }, 'link', {
+          type: 'select',
+          label: 'Size',
+          name: 'size',
+          options: [{
+            id: '0',
+            name: 'Default'
+          }, {
+            id: '1',
+            name: 'Small'
+          }, {
+            id: '2',
+            name: 'Medium'
+          }, {
+            id: '3',
+            name: 'Large'
+          }, {
+            id: '4',
+            name: 'XL'
+          }, {
+            id: '5',
+            name: 'XXL'
+          }]
+        }, {
+          type: 'select',
+          label: 'Alignment',
+          name: 'alignment',
+          options: [{
+            id: '0',
+            name: 'left'
+          }, {
+            id: '1',
+            name: 'center'
+          }, {
+            id: '2',
+            name: 'right'
+          }]
+        }]
       }
     }
   });
@@ -39039,9 +39076,15 @@ var defaultConfig = {
   // If true renders editor on init
   autorender: 1,
   // Array of plugins to init
-  plugins: [myCustomComponentTypes],
+  plugins: [myCustomComponentTypes // 'grapesjs-lory-slider'
+  ],
   // Custom options for plugins
-  pluginsOpts: {}
+  pluginsOpts: {// "grapesjs-lory-slider": {
+    //   sliderBlock: {
+    //       category: "Extra"
+    //   }
+    // },
+  }
 };
 /* harmony default export */ __webpack_exports__["default"] = ({
   $: cash_dom__WEBPACK_IMPORTED_MODULE_1__["default"],
@@ -39081,15 +39124,9 @@ var defaultConfig = {
       showOffsets: 1,
       selectorManager: {
         componentFirst: true
-      }
-    }); // blocks
-
-    var blockManager = editor.BlockManager;
-    blockManager.add('my-block', {
-      label: '<img height="40px" src="https://image.flaticon.com/icons/svg/32/32286.svg" /> <br /> Test Block',
-      //content: '<div class="test-block">Header Test Block</div>',
-      content: {
-        type: 'my-header-type'
+      },
+      blockManager: {
+        appendTo: '#blocks'
       }
     }); // Load plugins
 
@@ -39112,16 +39149,19 @@ var defaultConfig = {
     }); //traits
 
     editor.TraitManager.addType('header-title', {
+      noLabel: true,
       createInput: function createInput(_ref) {
         var trait = _ref.trait;
         var el = document.createElement('div');
-        el.innerHTML = "\n          <div class=\"settings-div\">\n            <div class=\"center\" >\n                <textarea class=\"form-control\" id=\"exampleFormControlTextarea1\" rows=\"2\"></textarea>\n            </div>\n          </div>\n        ";
+        el.innerHTML = "\n          <div class=\"settings-div label\">\n            <div class=\"center\" >\n              <p class=\"text\">Content</p>\n            </div>\n          </div>\n          <div class=\"settings-div sd-input\">\n            <div class=\"center\" >\n              <textarea class=\"form-control\" id=\"exampleFormControlTextarea1\" rows=\"2\"></textarea>\n            </div>\n          </div>\n        ";
         return el;
-      },
-      createLabel: function createLabel(_ref2) {
-        var label = _ref2.label;
-        return "<div>\n                  <div><b>Lo estoy</b></div>\n                    ".concat(label, "\n                  <div><b>Logrando</b></div>\n                </div>");
-      }
+      } //createLabel({ label }) {
+      //  return `<div>
+      //              ${label}
+      //          </div>`;
+      //},
+      //onEvent({elInput, component, event})
+
     }); // Execute `onLoad` on modules once all plugins are initialized.
     // A plugin might have extended/added some custom type so this
     // is a good point to load stuff like components, css rules, etc.

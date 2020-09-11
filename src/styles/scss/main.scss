@@ -560,3 +560,37 @@ $colorsAll: (one, $primaryColor),
 .cm-s-hopscotch span.cm-error {
     color: #ffffff;
 }
+
+/********* Custom Styles **********/
+.settings-div{
+  height: 35px;
+  width: 100%;
+  background-color: rgb(255, 255, 255);
+  margin-bottom: 1px;
+  margin-top: 2px;
+}
+
+.settings-div .sd-input{
+  padding-bottom: 8px;
+}
+
+.settings-div .row .col-6{
+  padding: 0;
+}
+
+.settings-div .row .custom-switch{
+  text-align: right;
+}
+
+.settings-div .row .padding-text p {
+  text-align: center;
+  color: rgb(216, 229, 244);
+  font-size: 10px;
+}
+.settings-div textarea {
+ background-color: #f8f8f9 !important;
+}
+
+.gjs-field input, .gjs-field select, .gjs-field textarea {
+  background-color: #f8f8f9 !important;
+}

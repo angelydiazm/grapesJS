@@ -1,10 +1,14 @@
 .#{$app-prefix} {
   &traits-label {
+    
     border-bottom: 1px solid $mainDkColor;
-    font-weight: lighter;
+    font-weight: 400;
+    color: #fff;
     margin-bottom: 5px;
     padding: 10px;
-    text-align: left;
+    text-align: center;
+    background-color: #dc3545;
+    height: 6%;
   }
 
   &label {
@@ -31,7 +35,7 @@
 .#{$trt-prefix}trait {
   display: flex;
   justify-content: flex-start;
-  padding: 5px 10px;
+  padding: 8px 10px;
   font-weight: lighter;
   align-items: center;
   text-align: left;

@@ -108,17 +108,29 @@
       editor.on('load', () => {
         const blockBtn = editor.Panels.getButton('views', 'open-blocks');
         blockBtn.set('active', 1);
-      })
+      });
+
       editor.BlockManager.add('my-block2', {
       label:
         'Header',
-      category: 'Content',
+      category: 'Typography',
       attributes: { class:'gjs-fonts gjs-f-h1p' },
       content: {
-        type: 'my-header-type'
+        type: 'my-header-type',
+        content: 'Header Test Content',
       }
     });
 
+      editor.BlockManager.add('text', {
+        attributes: { class:'gjs-fonts gjs-f-text' },
+        label:'Text',
+        category: 'Typography',
+        content: {
+            type:'my-text-type',
+            content: 'Insert your text here'
+        }
+    });
+    
       editor.BlockManager.add('container').set({
           label: 'Container',
           attributes: { class:'gjs-fonts gjs-f-b1' },

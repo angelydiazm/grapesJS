@@ -1,6 +1,6 @@
 import grapesjs from 'grapesjs';
-import * as blocksBootstrap4 from 'grapesjs-blocks-bootstrap4';
+import 'grapesjs-blocks-bootstrap4';
 
 export default {
-  plugins: [blocksBootstrap4]
+  plugins: ['grapesjs-blocks-bootstrap4']
 };

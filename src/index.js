@@ -14,6 +14,50 @@ const myCustomComponentTypes = editor => {
   const defaultModel = defaultType.model;
   const defaultView = defaultType.view;
   const spans = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  const domc = editor.DomComponents;
+
+  editor.DomComponents.addType('my-text-type', {
+    model: textModel.extend(
+      {
+        defaults: Object.assign({}, defaultModel.prototype.defaults, {
+          'custom-name': 'my-text-type',
+          tagName: 'div',
+          droppable: true,
+          editable: true,
+          traits: {
+            type: 'content',
+            changeProp: true,
+            label: 'text'
+          }
+        })
+      },
+      {
+        /*isComponent(el) {
+          if(el && el.dataset && el.dataset.bsText) {
+            return {type: 'text'};
+          }
+        }*/
+      }
+    ),
+    view: defaultView.extend({
+      events: {
+        click: 'handleClick'
+      },
+
+      init() {
+        this.listenTo(this.model, 'change:content', this.updateContent);
+      },
+
+      updateContent() {
+        this.el.innerHTML = this.model.get('content');
+      },
+
+      handleClick(e) {
+        e.preventDefault();
+      }
+    })
+  });
+
   editor.DomComponents.addType('my-header-type', {
     model: textModel.extend(
       {
@@ -40,8 +84,11 @@ const myCustomComponentTypes = editor => {
           //console.log('render', editor.getSelected().set({view: this.render}))
           //console.log('renderizo')
         },
+
+        //--------------###############################
+
         defaults: Object.assign({}, textModel.prototype.defaults, {
-          'custom-name': 'Header',
+          'custom-name': 'my-header-type',
           tagName: 'h1',
           attributes: {
             content: 'Header Test Content'
@@ -50,6 +97,7 @@ const myCustomComponentTypes = editor => {
             return `${model.getAttributes()['content']}`;
           },
           editable: true,
+          droppable: true,
           traits: [
             {
               type: 'header-title',
@@ -87,10 +135,18 @@ const myCustomComponentTypes = editor => {
     view: textView.extend({
       init() {
         //this.listenTo(this.model, 'change:attributes', this.render)
+        this.listenTo(this.model, 'change:content', this.updateContent);
         const content = this.model.getAttributes()['content'];
         console.log('content in view: ', content);
         this.model.addAttributes({ content: content });
         console.log('local hook view init');
+      },
+      updateContent() {
+        this.el.innerHTML = this.model.get('content');
+      },
+
+      handleClick(e) {
+        e.preventDefault();
       },
       onRender() {
         console.log('local hook on render');
@@ -533,8 +589,7 @@ const defaultConfig = {
   plugins: [
     myCustomComponentTypes,
     // 'grapesjs-lory-slider',
-    //pluginBootstrap4
-    blocksBootstrap4
+    'grapesjs-blocks-bootstrap4'
   ],
 
   // Custom options for plugins
@@ -638,8 +693,8 @@ export default {
         //elInput.querySelector(#)
         let content = elInput.querySelector('#exampleFormControlTextarea1')
           .value;
-        component.addAttributes({ content: content });
         component.view.attr.content = content;
+        component.view.el.innerText = content;
         console.log(component.view.attr.content);
       }
     });
